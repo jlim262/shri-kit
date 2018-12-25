@@ -21,6 +21,7 @@ class GazeState:
     FOCUSING = 1
     TRACKING = 2
     GLANCE = 3
+    NOD = 4
     UNKNOWN = -1
 
 class GazeNode:
@@ -74,6 +75,12 @@ class GazeNode:
                 if self.current_state != GazeState.TRACKING:
                     self.last_state = self.current_state
                     self.current_state = GazeState.TRACKING
+        elif 'elicitable_situation_sensed' in msg.events:
+            with self.lock:
+                if self.current_state != GazeState.NOD:
+                    self.last_state = self.current_state
+                    self.current_state = GazeState.NOD
+         
 
     def handle_gaze_focusing(self, msg):
         # 환경 메모리에서 전달된 이름에 대한 정보가 있는지 확인해보고, 있으면 타겟설정, 없으면 현재모드 유지
@@ -197,6 +204,46 @@ class GazeNode:
                 with self.lock:
                     self.current_state = self.last_state
 
+        elif self.current_state == GazeState.NOD:
+            target_type = ''
+            target_name = ''
+
+            try:
+                target_type, target_name = self.focusing_target.split(':')
+            except ValueError:
+                with self.lock:
+                    self.current_state = self.last_state
+                return
+
+            req = ReadDataRequest()
+            req.perception_name = target_type
+            req.query = '{"name": "%s"}'%target_name
+            req.data.append('xyz')
+            req.data.append('frame_id')
+            response = self.rd_memory['environmental_memory'](req)
+
+            if response.result:
+                rospy.logdebug("read from environmental_memory for %s: %s"%(target_name, response.data))
+                result_data = json.loads(response.data)
+
+                cmd = GazeCommand()
+                cmd.target_point.header.frame_id = result_data['frame_id']
+                cmd.target_point.point.x = result_data['xyz'][0]
+                cmd.target_point.point.y = result_data['xyz'][1]
+                cmd.target_point.point.z = result_data['xyz'][2] / 4 * 3
+                cmd.max_speed = 0.2
+
+                self.pub_gaze_cmd.publish(cmd)
+                self.pub_viz_gaze_cmd.publish(cmd.target_point)
+
+                def head_up_to_gaze(event):            
+                    with self.lock:
+                        self.current_state = self.last_state           
+                rospy.Timer(rospy.Duration(1), head_up_to_gaze, oneshot=True)
+            else:
+                rospy.logwarn('Can not find the information of %s in memory...'%target_name)
+                with self.lock:
+                    self.current_state = self.last_state           
 
         elif self.current_state == GazeState.TRACKING:
             # 환경 메모리에서 사람들에 대한 정보를 받아옴
