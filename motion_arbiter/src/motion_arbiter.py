@@ -461,6 +461,8 @@ class MotionArbiter:
         rospy.loginfo('\033[91m[%s]\033[0m scene rendering done...'%rospy.get_name())
         self.is_rendering = False
         rospy.sleep(0.2)
+        if self.scene_queue.empty():
+            self.pub_empty_queue.publish(json.dumps('{}'))
 
 
 if __name__ == '__main__':
