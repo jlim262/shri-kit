@@ -229,8 +229,8 @@ class GazeNode:
                 cmd = GazeCommand()
                 cmd.target_point.header.frame_id = result_data['frame_id']
                 cmd.target_point.point.x = result_data['xyz'][0]
-                cmd.target_point.point.y = result_data['xyz'][1]
-                cmd.target_point.point.z = result_data['xyz'][2] / 4 * 3
+                cmd.target_point.point.y = result_data['xyz'][1] / 20
+                cmd.target_point.point.z = result_data['xyz'][2]  
                 cmd.max_speed = 0.2
 
                 rospy.loginfo("head down")
@@ -242,7 +242,7 @@ class GazeNode:
                     with self.lock:
                         if self.last_state != GazeState.NOD:
                             self.current_state = self.last_state           
-                rospy.Timer(rospy.Duration(3), head_up_to_gaze, oneshot=True)
+                # rospy.Timer(rospy.Duration(3), head_up_to_gaze, oneshot=True)
             else:
                 rospy.logwarn('Can not find the information of %s in memory...'%target_name)
                 with self.lock:
