@@ -36,7 +36,7 @@ working_memory provides methods to store and read data from database. It uses 'p
 
 ### motion_speech_generator(motion_arbiter) node
 
-motion_speech_generator node generates a sort of script which robot should express motions and dialog to speech. Currently, it supports 8 tags such as SAY, GAZE, POINTING, SCREEN, MOBILITY, SM, EXPRESSION for generating a script.
+motion_speech_generator node generates a sort of script which robot should express motions and dialog to speech. Currently, it supports 8 tags such as SAY, GAZE, POINTING, SCREEN, MOBILITY, SM, EXPRESSION for generating a script. Also emotions are supported(happy, neutral, sad, surprise, angry). 
 
 ### expression(motion_renderer) node
 
