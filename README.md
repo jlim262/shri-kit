@@ -1,8 +1,8 @@
-# Social Behavior
+# Multimodal Expression Engine
 
 ## Package Summary
 
-Social HRI Software Framework(Social-Behavior)is the modularized HRI software framework for developing the social robots.
+Multimodal Expression Engine(Social HRI Software Framework) is the modularized HRI software framework for developing the social robots.
 
 -   Maintainer status: maintained
 -   Maintainer: Ho Seok Ahn, JongYoon Lim, Chris Lee
@@ -12,11 +12,9 @@ Social HRI Software Framework(Social-Behavior)is the modularized HRI software fr
 
 ## Overview
 
-Social-Behavior is the ROS-based software framework for developing SHRI(Social Human Robotics Interface) robots quickly. This framework consists of extensible modules such as sensory perception modules, dialog manager, motion generator.Each module communicates using the ROS topic, service, and actionlib. Data can be stored in the database as well if necessary. Social-Behavior also provides reflex social skills such as gazing, blinking and turn-taking.
+Multimodal Expression Engine is the ROS-based software framework for developing SHRI(Social Human Robotics Interface) robots quickly. This framework consists of extensible modules such as sensory perception modules, dialog manager, motion generator.Each module communicates using the ROS topic, service, and actionlib. Data can be stored in the database as well if necessary. Multimodal Expression Engine also provides reflex social skills such as gazing, blinking and turn-taking. Tag and Gesture List for Robots typically can find in each robot's render_gesutre package: motions.yaml
 
 <center><a href="./doc/social_mind_block_diagram.png"><img src="./doc/social_mind_block_diagram.png" width="800px"></a></center>
-
-## Details of modules
 
 ### perception_base node
 
@@ -36,7 +34,7 @@ working_memory provides methods to store and read data from database. It uses 'p
 
 ### motion_speech_generator(motion_arbiter) node
 
-motion_speech_generator node generates a sort of script which robot should express motions and dialog to speech. Currently, it supports 8 tags such as SAY, GAZE, POINTING, SCREEN, MOBILITY, SM, EXPRESSION for generating a script. Also emotions are supported(happy, neutral, sad, surprise, angry). 
+motion_speech_generator node generates a sort of script which robot should express motions and dialog to speech. Currently, it supports 8 tags such as SAY, GAZE, POINTING, SCREEN, MOBILITY, SM, EXPRESSION for generating a script. Also emotions are supported(happy, neutral, sad, surprise, angry).
 
 ### expression(motion_renderer) node
 
@@ -46,15 +44,23 @@ expression node is a mediator between motion_speech_generator and physical motio
 
 reflex_behavior node is responsible for the reflex motions such as gazing, turn-taking, and so on.
 
-## Installation (by sources)
+## Hardware requirements
+
+Multimodal Expression Engine can be used for any hardware platforms which support ROS Indigo or above versions.
+
+## Quick start
 
         $ cd ~/catkin_ws/src
         $ git clone https://github.com/jlim262/social_behavior.git
         $ rosdep install --from-paths social_behavior --ignore-src -r -y
         $ cd social_behavior
         $ find -name 'requirements.txt' | xargs -L 1 sudo pip install -U -r
+        $ cd ~/catkin_ws
+        $ catkin_make
+        $ source ./devel/setup.bash
+        $ roslaunch social_behavior bringup.launch
 
-## Topics
+## Input/Subscribed Topics
 
 ### /raising_events [RaisingEvents.msg] via [events_multiplexer](./events_multiplexer)
 
@@ -88,6 +94,8 @@ reflex_behavior node is responsible for the reflex motions such as gazing, turn-
             recognized_word: ''
             events: ['button_pressed']
             data: ['{"text": "yes"}']
+
+## Output/Published Topics
 
 ### /reply [Reply.msg] received from Scheduler Engine
 
@@ -138,7 +146,15 @@ reflex_behavior node is responsible for the reflex motions such as gazing, turn-
                 frame_id: ''
             reply: "<expression=happiness> Hello. My name is Silbot"
 
-_Tag and Gesture List for Robots typically can find in each robot's render_gesutre package: motions.yaml_
+## Parameters
 
-[raisingevents.msg]: https://raw.githubusercontent.com/byeongkyu/social_mind/master/mind_msgs/msg/RaisingEvents.msg
-[reply.msg]: https://raw.githubusercontent.com/byeongkyu/social_mind/master/mind_msgs/msg/Reply.msg
+-   use_v1_arbiter: "true" for using arbiter version 1. Default value is "false"
+-   gaze: "true" for gazing an object(human face). Default value is "true".
+-   gaze_default_height: Offset for the gazing height.
+-   show_generated_timeline: "true" shows visualized timeline of generated motions. Default value is "false".
+-   fake_render_speech: Text based simple renderer of speech. Default value is "true".
+-   fake_render_gesture: Text based simple renderer of gesture. Default value is "true".
+-   fake_render_screen: Text based simple renderer of screen. Default value is "true".
+-   fake_render_facial_expression: Text based simple renderer of facial. Default value is "true".
+-   fake_render_sound: Text based simple renderer of sound. Default value is "true".
+-   fake_render_mobility: Text based simple renderer of mobility. Default value is "true".
