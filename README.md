@@ -2,7 +2,7 @@
 
 ## Package Summary
 
-Multimodal Expression Engine(Social HRI Software Framework) is the modularized HRI software framework for developing the social robots.
+Multimodal Expression Engine(Social HRI Software Framework) is the modularized HRI software framework for developing the social robots. This project is migrated from https://github.com/byeongkyu/social_mind.
 
 -   Maintainer status: maintained
 -   Maintainer: Ho Seok Ahn, JongYoon Lim, Chris Lee
