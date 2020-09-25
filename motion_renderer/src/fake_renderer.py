@@ -7,6 +7,8 @@ import actionlib
 import random
 import re
 
+from sensor_msgs.msg import JointState
+from social_msgs.srv import SocialMotion, SocialMotionResponse, SocialMotionRequest
 from mind_msgs.msg import RenderItemAction, RenderItemResult, RenderItemFeedback
 from mind_msgs.srv import GetInstalledGestures, GetInstalledGesturesResponse
 
@@ -45,6 +47,13 @@ class FakeMotionRender:
         self.server.start()
 
         # self.pub_silbot_execution = rospy.Publisher('/reply_deprecated', Reply, queue_size=10)
+        # self.cmd_pos_publisher = rospy.Publisher('/cmd_pos', JointState, queue_size=10)
+        
+    
+        
+        
+        self.social_motion = rospy.ServiceProxy('/social_motion_player/play_motion', SocialMotion)
+        self.social_motion.wait_for_service()
 
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
@@ -97,6 +106,9 @@ class FakeMotionRender:
                             rospy.logwarn('\033[94m[%s]\033[0m except) rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list['neutral'][random.randint(0, len(self.motion_list['neutral']) - 1)]))
+                            req = SocialMotionRequest()
+                            req.file_name = 'hello2'
+                            self.social_motion(req)
 
                 elif cmd == 'play':
                     find_result = False
