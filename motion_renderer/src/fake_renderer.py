@@ -108,6 +108,7 @@ class FakeMotionRender:
                                 self.motion_list['neutral'][random.randint(0, len(self.motion_list['neutral']) - 1)]))
                             req = SocialMotionRequest()
                             req.file_name = 'hello2'
+                            req.text = 'hello'
                             self.social_motion(req)
 
                 elif cmd == 'play':
