@@ -44,6 +44,8 @@ class FakeMotionRender:
             topic_name, RenderItemAction, self.execute_callback, False)
         self.server.start()
 
+        self.pub_silbot_execution = rospy.Publisher('/reply_deprecated', Reply, queue_size=10)
+
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
 
@@ -77,11 +79,13 @@ class FakeMotionRender:
                         emotion = match.group(1)
 
                         try:
-                            rospy.loginfo('\033[94m[%s]\033[0m rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
+                            rospy.loginfo('\033[94m[%s]\033[0m match> rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list[item_name][emotion][random.randint(0, len(self.motion_list[item_name]) - 1)]))
+
+                            
                         except (KeyError, TypeError):
-                            rospy.loginfo('\033[94m[%s]\033[0m rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
+                            rospy.loginfo('\033[94m[%s]\033[0m match> except) rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]))
                     else:
@@ -90,7 +94,7 @@ class FakeMotionRender:
                                 cmd,
                                 self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]))
                         except KeyError:
-                            rospy.logwarn('\033[94m[%s]\033[0m rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
+                            rospy.logwarn('\033[94m[%s]\033[0m except) rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list['neutral'][random.randint(0, len(self.motion_list['neutral']) - 1)]))
 
