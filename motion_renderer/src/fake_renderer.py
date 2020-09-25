@@ -44,7 +44,7 @@ class FakeMotionRender:
             topic_name, RenderItemAction, self.execute_callback, False)
         self.server.start()
 
-        self.pub_silbot_execution = rospy.Publisher('/reply_deprecated', Reply, queue_size=10)
+        # self.pub_silbot_execution = rospy.Publisher('/reply_deprecated', Reply, queue_size=10)
 
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
