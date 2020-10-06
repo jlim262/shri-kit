@@ -35,7 +35,7 @@ class FakeMotionRender:
                 'encourge': ['encourge_motion1'],
                 'attention': ['attention_motion1'],
                 'consolation': ['consolation_motion1'],
-                'greeting': ['greeting_motion1'],
+                'greeting': ['hello', 'hello2', 'polite_hello', 'korean_greeting', 'right_hand_hello'],
                 'waiting': ['waiting_motion1'],
                 'advice': ['advice_motion1'],
                 'praise': ['praise_motion1'],
@@ -81,12 +81,13 @@ class FakeMotionRender:
 
             elif gesture_category == 'gesture':
                 (cmd, item_name) = gesture_item.split(':')
+                rospy.loginfo(gesture_item)
                 if cmd == 'tag':
                     match = re.search(r'\[(.+?)\]', item_name)
                     if match:
                         item_name = item_name.replace(match.group(0), '')
                         emotion = match.group(1)
-
+                        rospy.loginfo(emotion)
                         try:
                             rospy.loginfo('\033[94m[%s]\033[0m match> rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
@@ -99,16 +100,22 @@ class FakeMotionRender:
                                 self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]))
                     else:
                         try:
-                            rospy.loginfo('\033[94m[%s]\033[0m rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
+                            rospy.loginfo('\033[94m[%s]\033[0m ! rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]))
+                                
+                            req = SocialMotionRequest()
+                            req.file_name = self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]
+                            req.text = ''
+                            self.social_motion(req)
+
                         except KeyError:
                             rospy.logwarn('\033[94m[%s]\033[0m except) rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list['neutral'][random.randint(0, len(self.motion_list['neutral']) - 1)]))
                             req = SocialMotionRequest()
                             req.file_name = 'hello2'
-                            req.text = 'hello'
+                            req.text = ''
                             self.social_motion(req)
 
                 elif cmd == 'play':
@@ -128,6 +135,10 @@ class FakeMotionRender:
             loop_count = 10
         if 'render_speech' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering speech [%s]...'%(rospy.get_name(), goal.data))
+            req = SocialMotionRequest()
+            req.file_name = ''
+            req.text = goal.data
+            self.social_motion(req)
             loop_count = 10
 
         if 'render_screen' in rospy.get_name():
