@@ -7,10 +7,50 @@ import actionlib
 import random
 import re
 
+import moveit_commander
+from actionlib import SimpleActionClient
+from moveit_msgs.msg import *
+
 from sensor_msgs.msg import JointState
 from social_msgs.srv import SocialMotion, SocialMotionResponse, SocialMotionRequest
 from mind_msgs.msg import RenderItemAction, RenderItemResult, RenderItemFeedback
 from mind_msgs.srv import GetInstalledGestures, GetInstalledGesturesResponse
+
+class TestMoveAction(object):
+    def __init__(self):
+        super(TestMoveAction, self).__init__()
+
+        self.robot = moveit_commander.RobotCommander()        
+        self.scene = moveit_commander.PlanningSceneInterface()  
+        rospy.sleep(2)
+
+        # create a action client of move group
+        self._move_client = SimpleActionClient('move_group', MoveGroupAction)
+        self._move_client.wait_for_server()
+
+    def send(self, joint_values=[0, 0, 0, 0, 0, 0, 0, 0]):
+        # set group        
+        group_name = 'left_arm'
+        group = moveit_commander.MoveGroupCommander(group_name)
+
+        # prepare a joint goal
+        goal = MoveGroupGoal()
+        goal.request.group_name = group_name
+        
+        joint_names = group.get_active_joints()
+        # joint_values = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        goal_constraint = Constraints()
+        for i in range(len(joint_names)):
+            joint_constraint = JointConstraint()
+            joint_constraint.joint_name = joint_names[i]
+            joint_constraint.position = joint_values[i]
+            joint_constraint.weight = 1.0
+            goal_constraint.joint_constraints.append(joint_constraint)
+        goal.request.goal_constraints.append(goal_constraint)
+
+        # send the goal
+        self._move_client.send_goal(goal)
 
 class FakeMotionRender:
 
@@ -113,10 +153,12 @@ class FakeMotionRender:
                             rospy.logwarn('\033[94m[%s]\033[0m except) rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
                                 cmd,
                                 self.motion_list['neutral'][random.randint(0, len(self.motion_list['neutral']) - 1)]))
-                            req = SocialMotionRequest()
-                            req.file_name = 'hello2'
-                            req.text = ''
-                            self.social_motion(req)
+                            # req = SocialMotionRequest()
+                            # req.file_name = 'hello2'
+                            # req.text = ''
+                            # self.social_motion(req)
+                            moveit_action = TestMoveAction() 
+                            moveit_action.send()
 
                 elif cmd == 'play':
                     find_result = False
@@ -135,11 +177,11 @@ class FakeMotionRender:
             loop_count = 10
         if 'render_speech' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering speech [%s]...'%(rospy.get_name(), goal.data))
-            req = SocialMotionRequest()
-            req.file_name = ''
-            req.text = goal.data
-            self.social_motion(req)
-            loop_count = 10
+            # req = SocialMotionRequest()
+            # req.file_name = ''
+            # req.text = goal.data
+            # self.social_motion(req)
+            # loop_count = 10
 
         if 'render_screen' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering screen [%s]...'%(rospy.get_name(), goal.data))
