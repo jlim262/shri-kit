@@ -36,6 +36,7 @@ class TestMoveAction(object):
         # prepare a joint goal
         goal = MoveGroupGoal()
         goal.request.group_name = group_name
+        goal.planning_options.plan_only = False
         
         joint_names = group.get_active_joints()
         # joint_values = [0, 0, 0, 0, 0, 0, 0, 0]
