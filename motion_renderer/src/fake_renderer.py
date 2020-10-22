@@ -105,7 +105,7 @@ class FakeMotionRender:
 
     def __init__(self):
         rospy.init_node('fake_renderer', anonymous=True)
-
+        self.moveit_action = TestMoveAction() 
         try:
             topic_name = rospy.get_param('~action_name')
         except KeyError as e:
@@ -197,8 +197,8 @@ class FakeMotionRender:
                             # req.file_name = self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]
                             # req.text = ''
                             # self.social_motion(req)
-                            moveit_action = TestMoveAction() 
-                            moveit_action.execute()
+                            
+                            self.moveit_action.execute()
 
                         except KeyError:
                             rospy.logwarn('\033[94m[%s]\033[0m except) rendering gesture cmd [%s], name [%s]...'%(rospy.get_name(),
@@ -208,9 +208,9 @@ class FakeMotionRender:
                             # req.file_name = 'hello2'
                             # req.text = ''
                             # self.social_motion(req)
-                            moveit_action = TestMoveAction() 
+                            
                             # moveit_action.send()
-                            moveit_action.execute()
+                            self.moveit_action.execute()
 
                 elif cmd == 'play':
                     find_result = False
