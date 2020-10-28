@@ -16,6 +16,10 @@ from social_msgs.srv import SocialMotion, SocialMotionResponse, SocialMotionRequ
 from mind_msgs.msg import RenderItemAction, RenderItemResult, RenderItemFeedback
 from mind_msgs.srv import GetInstalledGestures, GetInstalledGesturesResponse
 
+import json
+import rospkg
+import os
+
 class TestMoveAction(object):
     def __init__(self):
         super(TestMoveAction, self).__init__()
@@ -43,6 +47,21 @@ class TestMoveAction(object):
         self.create_trajectory_points(goal)
         
         self._move_client.send_goal(goal)
+
+    def json_to_trajectory(self):
+        json_path = rospkg.RosPack().get_path('motion_renderer') + '/src'
+        json_path = os.path.join(json_path, 'hello2.json')
+
+        with open(json_path) as f:
+            data = json.load(f)
+
+            trajectory = []
+
+            for d in data['frames']:
+                trajectory.append(d['head_waist'][2:] + d['arm'][:6])
+            
+            return trajectory
+
     
     def create_trajectory_points(self, goal):
         
@@ -65,7 +84,11 @@ class TestMoveAction(object):
         [6.717970227667442e-05, 4.813368595787324e-05, 5.4902435895443584e-05, -1.2166146854896718, -3.594601787238693e-05, 4.298729544680099e-05, 6.910539955521625e-05, 4.4120718136431e-05],
         [5.843258238294059e-05, 4.781013615817452e-05, 5.8118543563048455e-05, -1.2943967240117593, -3.083451222369655e-05, 5.50592631547867e-05, 5.400667888526289e-05, 5.159543415407421e-05],
         [4.968546248920677e-05, 4.748658635847581e-05, 6.133465123065333e-05, -1.3721787625338466, -2.572300657500617e-05, 6.713123086277239e-05, 3.8907958215309534e-05, 5.9070150171717416e-05],
-        [4.093834259547294e-05, 4.716303655877709e-05, 6.455075889825821e-05, -1.4499608010559342, -2.061150092631579e-05, 7.92031985707581e-05, 2.3809237545356163e-05, 6.654486618936063e-05]]               
+        [4.093834259547294e-05, 4.716303655877709e-05, 6.455075889825821e-05, -1.4499608010559342, -2.061150092631579e-05, 7.92031985707581e-05, 2.3809237545356163e-05, 6.654486618936063e-05]]
+        
+        joint_trajectory = self.json_to_trajectory()
+        print(len(joint_trajectory))
+        print(joint_trajectory)
         
 
         for i,positions in enumerate(joint_trajectory):
@@ -134,15 +157,6 @@ class FakeMotionRender:
         self.server = actionlib.SimpleActionServer(
             topic_name, RenderItemAction, self.execute_callback, False)
         self.server.start()
-
-        # self.pub_silbot_execution = rospy.Publisher('/reply_deprecated', Reply, queue_size=10)
-        # self.cmd_pos_publisher = rospy.Publisher('/cmd_pos', JointState, queue_size=10)
-        
-    
-        
-        
-        self.social_motion = rospy.ServiceProxy('/social_motion_player/play_motion', SocialMotion)
-        self.social_motion.wait_for_service()
 
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
@@ -229,11 +243,7 @@ class FakeMotionRender:
             loop_count = 10
         if 'render_speech' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering speech [%s]...'%(rospy.get_name(), goal.data))
-            # req = SocialMotionRequest()
-            # req.file_name = ''
-            # req.text = goal.data
-            # self.social_motion(req)
-            # loop_count = 10
+            loop_count = 10
 
         if 'render_screen' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering screen [%s]...'%(rospy.get_name(), goal.data))
