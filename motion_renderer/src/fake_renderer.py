@@ -21,7 +21,7 @@ import rospkg
 import os
 
 from std_msgs.msg import ColorRGBA, String, Float64, Empty #, Bool, UInt16, Empty
-# from robocare_msgs.srv import TTSMake, SoundPlay, SoundPlayResponse
+from robocare_msgs.srv import TTSMake, SoundPlay, SoundPlayResponse
 
 class TestMoveAction(object):
     def __init__(self):
@@ -158,12 +158,12 @@ class FakeMotionRender:
             topic_name, RenderItemAction, self.execute_callback, False)
         self.server.start()
 
-        # self.__make_tts_service = rospy.ServiceProxy('/robocare_tts/make', TTSMake)
-        # self.__play_sound_service = rospy.ServiceProxy('/robocare_sound/play', SoundPlay)
-        # self.__play_sound_stop_publisher = rospy.Publisher('/robocare_sound/stop', Empty, queue_size=10)
+        self.__make_tts_service = rospy.ServiceProxy('/robocare_tts/make', TTSMake)
+        self.__play_sound_service = rospy.ServiceProxy('/robocare_sound/play', SoundPlay)
+        self.__play_sound_stop_publisher = rospy.Publisher('/robocare_sound/stop', Empty, queue_size=10)
 
-        # self.__tts_count = -1
-        # self.__tts_file_path = '/tmp/robocare_tts'+str(self.__tts_count)+'.wav'
+        self.__tts_count = -1
+        self.__tts_file_path = '/tmp/robocare_tts'+str(self.__tts_count)+'.wav'
 
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
@@ -259,7 +259,7 @@ class FakeMotionRender:
         if 'render_speech' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering speech [%s]...' % (rospy.get_name(), goal.data))
             loop_count = 10
-            # self.request_tts(goal.data)
+            self.request_tts(goal.data)
 
         if 'render_screen' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering screen [%s]...'%(rospy.get_name(), goal.data))
