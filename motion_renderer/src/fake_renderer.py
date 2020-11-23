@@ -83,8 +83,12 @@ class TestMoveAction(object):
         with open(json_path) as f:
             data = json.load(f)
 
-            for d in data['frames']:
-                joint_trajectory.append(d['head_waist'][2:] + d['arm'][:6])
+            if motion_name in ['question', 'hand_shake']:
+                    arm = [x * -1 for x in d['arm'][6:]]
+                else:
+                    arm = d['arm'][:6]
+
+                joint_trajectory.append(d['head_waist'][2:] + arm)
 
         print(len(joint_trajectory))
         print(joint_trajectory)
@@ -148,6 +152,9 @@ class FakeMotionRender:
                 'consolation': ['consolation_motion1'],
                 'greeting': ['hello2', 'hello', 'polite_hello', 'korean_greeting', 'right_hand_hello'],
                 'hoho' : ['hoho2'],
+                'handshake' : ['hand_shake'],
+                'question' : ['question'],
+                'zero_pose' : ['zero_pose'],
                 'waiting': ['waiting_motion1'],
                 'advice': ['advice_motion1'],
                 'praise': ['praise_motion1'],
