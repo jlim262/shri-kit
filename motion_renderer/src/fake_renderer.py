@@ -38,6 +38,7 @@ class TestMoveAction(object):
         # create a action client of move group
         self._move_client = SimpleActionClient('/execute_trajectory', ExecuteTrajectoryAction)
         self._move_client.wait_for_server()
+        self.wait_sec = 0.0
 
     def execute(self, motion_name):
         # set joint name
@@ -51,6 +52,10 @@ class TestMoveAction(object):
         self.create_trajectory_points(goal, motion_name)
         
         self._move_client.send_goal(goal)
+        print('***************************************************************************************')
+        rospy.sleep(self.wait_sec)        
+        print(self._move_client.get_state())
+        print('***************************************************************************************')
 
     def json_to_trajectory(self):
         json_path = rospkg.RosPack().get_path('motion_renderer') + '/src'
@@ -101,6 +106,8 @@ class TestMoveAction(object):
             pt.accelerations = [0.0 for j in range(len(positions))]
             pt.time_from_start = rospy.Duration(0.1 * i)
             goal.trajectory.joint_trajectory.points.append(pt)
+
+        self.wait_sec = 0.1 * len(joint_trajectory) + 1.5
 
     def send(self, joint_values=[0, 0, 0, 0, 0, 0, 0, 0]):
         # set group        
