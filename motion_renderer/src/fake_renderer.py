@@ -76,11 +76,7 @@ class TestMoveAction(object):
             return trajectory
 
     
-    def create_trajectory_points(self, goal, motion_name):       
-        # joint_trajectory = self.json_to_trajectory()
-        
-        # json_path = os.path.join(json_path, 'hoho2.json')
-        # json_path = os.path.join(json_path, 'hand_shake.json')
+    def create_trajectory_points(self, goal, motion_name):
         joint_trajectory = []
         
         json_path = rospkg.RosPack().get_path('motion_renderer') + '/src'
@@ -88,17 +84,14 @@ class TestMoveAction(object):
         with open(json_path) as f:
             data = json.load(f)
 
-            if motion_name in ['question', 'hand_shake']:
+            for d in data['frames']:
+                if motion_name in ['question', 'hand_shake']:
                     arm = [x * -1 for x in d['arm'][6:]]
                 else:
                     arm = d['arm'][:6]
 
                 joint_trajectory.append(d['head_waist'][2:] + arm)
-
-        print(len(joint_trajectory))
-        print(joint_trajectory)
         
-
         for i,positions in enumerate(joint_trajectory):
             pt = trajectory_msgs.msg.JointTrajectoryPoint()
             pt.positions = positions
