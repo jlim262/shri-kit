@@ -36,10 +36,14 @@ class FakeMotionRender:
                 'attention': ['attention_motion1'],
                 'consolation': ['consolation_motion1'],
                 'greeting': ['hello', 'hello2', 'polite_hello', 'korean_greeting', 'right_hand_hello'],
+                'hello': ['hello'],
                 'waiting': ['waiting_motion1'],
                 'advice': ['advice_motion1'],
                 'praise': ['praise_motion1'],
                 'command': ['command_motion1'],
+                'hoho': ['hoho', 'hoho2'],
+                'scratch_head': ['scratch_head'],
+                'shake_hand': ['question']
             }
 
         self.server = actionlib.SimpleActionServer(
