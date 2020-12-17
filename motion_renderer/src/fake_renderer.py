@@ -109,7 +109,8 @@ class FakeMotionRender:
                                 self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]))
                                 
                             req = SocialMotionRequest()
-                            req.file_name = self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]
+                            # req.file_name = self.motion_list[item_name][random.randint(0, len(self.motion_list[item_name]) - 1)]
+                            req.file_name = item_name
                             req.text = ''
                             self.social_motion(req)
 
@@ -118,7 +119,8 @@ class FakeMotionRender:
                                 cmd,
                                 self.motion_list['neutral'][random.randint(0, len(self.motion_list['neutral']) - 1)]))
                             req = SocialMotionRequest()
-                            req.file_name = 'hello2'
+                            # req.file_name = 'hello2'
+                            req.file_name = item_name
                             req.text = ''
                             self.social_motion(req)
 
