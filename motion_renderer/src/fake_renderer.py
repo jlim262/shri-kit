@@ -12,6 +12,14 @@ from social_msgs.srv import SocialMotion, SocialMotionResponse, SocialMotionRequ
 from mind_msgs.msg import RenderItemAction, RenderItemResult, RenderItemFeedback
 from mind_msgs.srv import GetInstalledGestures, GetInstalledGesturesResponse
 
+
+import json
+import rospkg
+import os
+
+from std_msgs.msg import ColorRGBA, String, Float64, Empty #, Bool, UInt16, Empty
+from robocare_msgs.srv import TTSMake, SoundPlay, SoundPlayResponse
+
 class FakeMotionRender:
 
     def __init__(self):
@@ -59,8 +67,23 @@ class FakeMotionRender:
         self.social_motion = rospy.ServiceProxy('/social_motion_player/play_motion', SocialMotion)
         self.social_motion.wait_for_service()
 
+        self.__make_tts_service = rospy.ServiceProxy('/robocare_tts/make', TTSMake)
+        self.__play_sound_service = rospy.ServiceProxy('/robocare_sound/play', SoundPlay)
+        self.__play_sound_stop_publisher = rospy.Publisher('/robocare_sound/stop', Empty, queue_size=10)
+
+        self.__tts_count = -1
+        self.__tts_file_path = '/tmp/robocare_tts' + str(self.__tts_count) + '.wav'
+        
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
+
+    def request_tts(self, text):
+        self.__tts_count = self.__tts_count + 1
+        if self.__tts_count > 10:
+            self.__tts_count = 0
+        self.__make_tts_service(text, self.__tts_file_path)
+
+        self.__play_sound_service(self.__tts_file_path)
 
     def handle_get_installed_gestures(self, req):
         result = json.dumps(self.motion_list)
@@ -141,11 +164,8 @@ class FakeMotionRender:
             loop_count = 10
         if 'render_speech' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering speech [%s]...'%(rospy.get_name(), goal.data))
-            req = SocialMotionRequest()
-            req.file_name = ''
-            req.text = goal.data
-            self.social_motion(req)
             loop_count = 10
+            self.request_tts(goal.data)
 
         if 'render_screen' in rospy.get_name():
             rospy.loginfo('\033[94m[%s]\033[0m rendering screen [%s]...'%(rospy.get_name(), goal.data))
