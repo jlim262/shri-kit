@@ -72,15 +72,21 @@ class FakeMotionRender:
         self.__play_sound_stop_publisher = rospy.Publisher('/robocare_sound/stop', Empty, queue_size=10)
 
         self.__tts_count = -1
-        self.__tts_file_path = '/tmp/robocare_tts' + str(self.__tts_count) + '.wav'
+        self.__tts_file_path = self.get_wav_path()
         
         rospy.loginfo('[%s] initialized...' % rospy.get_name())
         rospy.spin()
 
+    def get_wav_path(self):
+        path = '/tmp/robocare_tts_from_uoa' + str(self.__tts_count) + '.wav'
+        return path
+
     def request_tts(self, text):
-        self.__tts_count = self.__tts_count + 1
-        if self.__tts_count > 10:
+        self.__tts_count = self.__tts_count + 1        
+        if self.__tts_count > 50:
             self.__tts_count = 0
+
+        self.__tts_file_path = self.get_wav_path()
         self.__make_tts_service(text, self.__tts_file_path)
 
         self.__play_sound_service(self.__tts_file_path)
