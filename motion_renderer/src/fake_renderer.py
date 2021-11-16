@@ -42,8 +42,10 @@ class TestMoveAction(object):
 
     def execute(self, motion_name):
         # set joint name
-        joint_names = ['Waist_Roll', 'Waist_Pitch', 'LShoulder_Pitch', 'LShoulder_Roll', 'LElbow_Pitch', 'LElbow_Yaw', 'LWrist_Pitch', 'LWrist_Roll']
-        # joint_names = ['Waist_Roll', 'Waist_Pitch', 'RShoulder_Pitch', 'RShoulder_Roll', 'RElbow_Pitch', 'RElbow_Yaw', 'RWrist_Pitch', 'RWrist_Roll']
+        # joint_names = ['Waist_Roll', 'Waist_Pitch', 'LShoulder_Pitch', 'LShoulder_Roll', 'LElbow_Pitch', 'LElbow_Yaw', 'LWrist_Pitch', 'LWrist_Roll']
+        joint_names = ['Waist_Roll', 'Waist_Pitch', 'Head_Yaw', 'Head_Pitch', 'LShoulder_Pitch', 'LShoulder_Roll', 'LElbow_Pitch', 'LElbow_Yaw', 'LWrist_Pitch', 'LFinger_1',
+                       'RShoulder_Pitch', 'RShoulder_Roll', 'RElbow_Pitch', 'RElbow_Yaw', 'RWrist_Pitch', 'RFinger_1']
+        
 
         # prepare a joint trajectory
         goal = ExecuteTrajectoryGoal()
@@ -53,7 +55,7 @@ class TestMoveAction(object):
         
         self._move_client.send_goal(goal)
         print('***************************************************************************************')
-        rospy.sleep(self.wait_sec)        
+        # rospy.sleep(self.wait_sec)        
         print(self._move_client.get_state())
         print('***************************************************************************************')
 
@@ -77,30 +79,69 @@ class TestMoveAction(object):
 
     
     def create_trajectory_points(self, goal, motion_name):
-        joint_trajectory = []
+        # joint_trajectory = []
         
-        json_path = rospkg.RosPack().get_path('motion_renderer') + '/src'
-        json_path = os.path.join(json_path, motion_name + '.json')        
-        with open(json_path) as f:
-            data = json.load(f)
+        # json_path = rospkg.RosPack().get_path('motion_renderer') + '/src'
+        # json_path = os.path.join(json_path, motion_name + '.json')        
+        # with open(json_path) as f:
+        #     data = json.load(f)
 
-            for d in data['frames']:
-                if motion_name in ['question', 'hand_shake']:
-                    arm = [x * -1 for x in d['arm'][6:]]
-                else:
-                    arm = d['arm'][:6]
+        #     for d in data['frames']:
+        #         if motion_name in ['question', 'hand_shake']:
+        #             arm = [x * -1 for x in d['arm'][6:]]
+        #         else:
+        #             arm = d['arm'][:6]
 
-                joint_trajectory.append(d['head_waist'][2:] + arm)
+        #         joint_trajectory.append(d['head_waist'][2:] + arm)
+            
+        #     json_data = json.load(f)
+        #     for element in json_data['frames']:
+        #         if element.get('head_waist'):
+        #             json_joint_list.append(
+        #                 element['head_waist'] + element['arm'])
+        #             json_timeline_list.append(element['timeline'])
+        #             last_timeline = element['timeline']
         
-        for i,positions in enumerate(joint_trajectory):
+        # for i,positions in enumerate(joint_trajectory):
+        #     pt = trajectory_msgs.msg.JointTrajectoryPoint()
+        #     pt.positions = positions
+        #     pt.velocities = [0.1 for j in range(len(positions))]
+        #     pt.accelerations = [0.0 for j in range(len(positions))]
+        #     pt.time_from_start = rospy.Duration(0.1 * i)
+        #     goal.trajectory.joint_trajectory.points.append(pt)
+
+        # self.wait_sec = 0.1 * len(joint_trajectory) + 1.5
+        json_joint_list = []
+        json_timeline_list = []
+        last_timeline = 0
+        json_joint_list.append(
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        json_timeline_list.append(0.0)
+
+        json_file_name = rospkg.RosPack().get_path('motion_renderer') + '/src'
+        json_file_name = os.path.join(json_file_name, motion_name + '.json')
+        
+        with open(json_file_name, 'r') as f:
+            json_data = json.load(f)
+            for element in json_data['frames']:
+                if element.get('head_waist'):
+                    json_joint_list.append(
+                        element['head_waist'] + element['arm'])
+                    json_timeline_list.append(element['timeline'])
+                    last_timeline = element['timeline']
+
+        json_joint_list.append(
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        json_timeline_list.append(round(last_timeline + 0.02, 2))
+
+        # json
+        for i, positions in enumerate(json_joint_list):
             pt = trajectory_msgs.msg.JointTrajectoryPoint()
             pt.positions = positions
             pt.velocities = [0.1 for j in range(len(positions))]
             pt.accelerations = [0.0 for j in range(len(positions))]
-            pt.time_from_start = rospy.Duration(0.1 * i)
+            pt.time_from_start = rospy.Duration(json_timeline_list[i])
             goal.trajectory.joint_trajectory.points.append(pt)
-
-        self.wait_sec = 0.1 * len(joint_trajectory) + 1.5
 
     def send(self, joint_values=[0, 0, 0, 0, 0, 0, 0, 0]):
         # set group        
